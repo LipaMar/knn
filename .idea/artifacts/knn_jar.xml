@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="knn:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/knn_jar</output-path>
+    <root id="archive" name="knn.jar">
+      <element id="module-output" name="knn" />
+    </root>
+  </artifact>
+</component>
