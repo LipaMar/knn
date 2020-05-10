@@ -6,6 +6,9 @@ import java.util.Map;
 public class KNN {
     private final ArrayList<IrisTestCase> learningCases;
     private final ArrayList<IrisTestCase> testingCases;
+    private final ResultArray euResult;
+    private final ResultArray cbResult;
+    private final ResultArray m2Result;
     private final ArrayList<CaseWithDistance> euclideanDistance;
     private final ArrayList<CaseWithDistance> cityBlockDistance;
     private final ArrayList<CaseWithDistance> minkowskiDistance;
@@ -21,6 +24,12 @@ public class KNN {
         this.maxNumberOfNeighbors = maxNumberOfNeighbors;
         this.learningCases = learningCases;
         this.testingCases = testingCases;
+        this.euResult = new ResultArray();
+        this.cbResult = new ResultArray();
+        this.m2Result = new ResultArray();
+        testingCases.forEach(case1 -> euResult.addTestCaseDecision(case1.getDecision()));
+        testingCases.forEach(case1 -> cbResult.addTestCaseDecision(case1.getDecision()));
+        testingCases.forEach(case1 -> m2Result.addTestCaseDecision(case1.getDecision()));
         int votingMethods = 3;
         int xSize = testingCases.size();
         euclideanErrorArray = new boolean[votingMethods][xSize][maxNumberOfNeighbors];
@@ -32,36 +41,42 @@ public class KNN {
         minkowskiDistance = new ArrayList<>();
     }
 
-    public void startTesting() {
+    public void test() {
         for (IrisTestCase testingCase : testingCases) {
             calculateDistance(testingCase);
             sortDistances();
-            topValuesCheck(euclideanDistance, testingCase, euclideanErrorArray);
-            topValuesCheck(cityBlockDistance, testingCase, cityBlockErrorArray);
-            topValuesCheck(minkowskiDistance, testingCase, minkowskiErrorArray);
+            topValuesCheck(euclideanDistance, testingCase, euclideanErrorArray,euResult);
+            topValuesCheck(cityBlockDistance, testingCase, cityBlockErrorArray,cbResult);
+            topValuesCheck(minkowskiDistance, testingCase, minkowskiErrorArray,m2Result);
             resetDistances();
         }
     }
 
-    private void topValuesCheck(ArrayList<CaseWithDistance> distance, IrisTestCase testCase, boolean[][][] errorArray) {
+    private void topValuesCheck(ArrayList<CaseWithDistance> distance, IrisTestCase testCase, boolean[][][] errorArray,ResultArray results) {
         for (int valuesInArray = 1; valuesInArray <= maxNumberOfNeighbors; valuesInArray++) {
             ArrayList<CaseWithDistance> arrayToCheck = minimizeArray(distance, valuesInArray);
-            errorArray[0][testingCases.indexOf(testCase)][valuesInArray - 1] = conductNormalVoting(arrayToCheck, testCase);
-            errorArray[1][testingCases.indexOf(testCase)][valuesInArray - 1] = conductSumOfTheInverseSquareVoting(arrayToCheck, testCase);
-            errorArray[2][testingCases.indexOf(testCase)][valuesInArray - 1] = conductDistanceSumVoting(arrayToCheck, testCase);
+            errorArray[0][testingCases.indexOf(testCase)][valuesInArray - 1] = conductNormalVoting(arrayToCheck, testCase,results);
+            errorArray[1][testingCases.indexOf(testCase)][valuesInArray - 1] = conductSumOfTheInverseSquareVoting(arrayToCheck, testCase,results);
+            errorArray[2][testingCases.indexOf(testCase)][valuesInArray - 1] = conductDistanceSumVoting(arrayToCheck, testCase,results);
         }
     }
 
-    private boolean conductNormalVoting(ArrayList<CaseWithDistance> arrayToCheck, IrisTestCase testCase) {
-        return normalVote(arrayToCheck).equals(testCase.getDecision());
+    private boolean conductNormalVoting(ArrayList<CaseWithDistance> arrayToCheck, IrisTestCase testCase,ResultArray result) {
+        String vote = normalVote(arrayToCheck);
+        result.addNormalVoteCasesDecision(vote,arrayToCheck.size()-1);
+        return vote.equals(testCase.getDecision());
     }
 
-    private boolean conductSumOfTheInverseSquareVoting(ArrayList<CaseWithDistance> arrayToCheck, IrisTestCase testCase) {
-        return sumOfTheInverseSquareVote(arrayToCheck).equals(testCase.getDecision());
+    private boolean conductSumOfTheInverseSquareVoting(ArrayList<CaseWithDistance> arrayToCheck, IrisTestCase testCase,ResultArray result) {
+        String vote = sumOfTheInverseSquareVote(arrayToCheck);
+        result.addInverseVoteMethodCasesDecision(vote,arrayToCheck.size()-1);
+        return vote.equals(testCase.getDecision());
     }
 
-    private boolean conductDistanceSumVoting(ArrayList<CaseWithDistance> arrayToCheck, IrisTestCase testCase) {
-        return distanceSumVote(arrayToCheck).equals(testCase.getDecision());
+    private boolean conductDistanceSumVoting(ArrayList<CaseWithDistance> arrayToCheck, IrisTestCase testCase,ResultArray result) {
+        String vote = distanceSumVote(arrayToCheck);
+        result.addSumVoteMethodCasesDecision(vote,arrayToCheck.size()-1);
+        return vote.equals(testCase.getDecision());
     }
 
     private <E> ArrayList<E> minimizeArray(ArrayList<E> arrayList, int toSize) {
@@ -200,5 +215,17 @@ public class KNN {
 
     public boolean[][][] getMinkowskiErrorArray() {
         return minkowskiErrorArray;
+    }
+
+    public ResultArray getEuResult() {
+        return euResult;
+    }
+
+    public ResultArray getCbResult() {
+        return cbResult;
+    }
+
+    public ResultArray getM2Result() {
+        return m2Result;
     }
 }

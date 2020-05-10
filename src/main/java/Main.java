@@ -14,13 +14,45 @@ public class Main {
         ArrayList<IrisTestCase> testingCases = IrisTestCase.convertTestCaseArrayList(TabConverter.getTestCasesArrayList(TESTING_TAB_PATH, true));
 
         KNN knn = new KNN(learningCases, testingCases, 5);
-        knn.startTesting();
+        knn.test();
         System.out.println("______METRYKA EUKLIDESA______");
         printTable(knn.getEuclideanErrorArray());
         System.out.println("______METRYKA CITY BLOCK______");
         printTable(knn.getCityBlockErrorArray());
         System.out.println("______METRYKA MINKOWSKIEGO______");
         printTable(knn.getMinkowskiErrorArray());
+
+        System.out.println("______METRYKA EUKLIDESA______");
+        printResult(knn.getEuResult());
+        System.out.println("______METRYKA CITY BLOCK______");
+        printResult(knn.getCbResult());
+        System.out.println("______METRYKA MINKOWSKIEGO______");
+        printResult(knn.getM2Result());
+    }
+    public static void printResult(ResultArray arr){
+
+        System.out.printf("%65s","Decyzje w tesowych przypadkach: ");
+        System.out.println(arr.getTestingCases());
+        System.out.printf("%65s","Zwykła metoda głosowania dla 1 sąsiada: ");
+        System.out.println(arr.getNormalVoteCases(0));
+        System.out.printf("%65s","Zwykła metoda głosowania dla 3 sąsiadów: ");
+        System.out.println(arr.getNormalVoteCases(2));
+        System.out.printf("%65s","Zwykła metoda głosowania dla 5 sąsiadów: ");
+        System.out.println(arr.getNormalVoteCases(4));
+
+        System.out.printf("%65s","Metoda sumy odwrotności kwadratów odległości dla 1 sąsiada: ");
+        System.out.println(arr.getInverseVoteMethodCases(0));
+        System.out.printf("%65s","Metoda sumy odwrotności kwadratów odległości dla 3 sąsiadów: ");
+        System.out.println(arr.getInverseVoteMethodCases(2));
+        System.out.printf("%65s","Metoda sumy odwrotności kwadratów odległości dla 5 sąsiadów: ");
+        System.out.println(arr.getInverseVoteMethodCases(4));
+
+        System.out.printf("%65s","Metoda sumy odległości dla 1 sąsiada: ");
+        System.out.println(arr.getSumVoteMethodCases(0));
+        System.out.printf("%65s","Metoda sumy odległości dla 3 sąsiadów: ");
+        System.out.println(arr.getSumVoteMethodCases(2));
+        System.out.printf("%65s","Metoda sumy odległości dla 5 sąsiadów: ");
+        System.out.println(arr.getSumVoteMethodCases(4));
     }
 
     public static void printTable(boolean[][][] errorTable) {
